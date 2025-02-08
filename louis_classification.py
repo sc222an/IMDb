@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.svm import SVC
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import accuracy_score
@@ -9,12 +9,12 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 import nltk
+import re
 
 # Download NLTK data files (only need to run once)
 nltk.download('punkt')
 nltk.download('wordnet')
 nltk.download('stopwords')
-nltk.download('punkt_tab')
 
 # Load the CSV data
 print("Loading CSV data...")
@@ -34,6 +34,8 @@ y = label_encoder.fit_transform(y)
 def preprocess_text(text):
     lemmatizer = WordNetLemmatizer()
     stop_words = set(stopwords.words('english'))
+    text = re.sub(r'<.*?>', '', text)  # Remove HTML tags
+    text = re.sub(r'[^a-zA-Z\s]', '', text)  # Remove special characters and numbers
     words = word_tokenize(text.lower())
     words = [lemmatizer.lemmatize(word) for word in words if word.isalnum() and word not in stop_words]
     return ' '.join(words)
@@ -50,10 +52,19 @@ print(f"Testing set: {len(X_test)} records")
 
 # Create a pipeline that combines a TfidfVectorizer with an SVM classifier
 print("Creating and training the model...")
-model = make_pipeline(TfidfVectorizer(), SVC(kernel='linear'))
+pipeline = make_pipeline(TfidfVectorizer(ngram_range=(1, 2)), SVC(kernel='linear', class_weight='balanced'))
 
-# Train the model
-model.fit(X_train, y_train)
+# Hyperparameter tuning using Grid Search
+param_grid = {
+    'tfidfvectorizer__max_df': [0.75, 1.0],
+    'tfidfvectorizer__max_features': [None, 5000, 10000],
+    'svc__C': [0.1, 1, 10]
+}
+grid_search = GridSearchCV(pipeline, param_grid, cv=5, n_jobs=-1, verbose=2)
+grid_search.fit(X_train, y_train)
+
+# Train the model with the best parameters
+model = grid_search.best_estimator_
 print("Model training completed.")
 
 # Predict the status of the test set
@@ -71,6 +82,6 @@ def predict_review_status(review):
     prediction = model.predict([preprocessed_review])[0]
     return label_encoder.inverse_transform([prediction])[0]
 
-# Example usage
-new_review = "C'est un film profondément émouvant que je recommande à tout le monde. Le travail de la caméra est excellent et les performances sont déterminantes pour ma carrière. Une réussite incroyable."
+# Prompt the user for a review
+new_review = input("Please enter a movie review: ")
 print(f'The review status is: {predict_review_status(new_review)}')
