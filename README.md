@@ -33,7 +33,7 @@ The necessary NLTK data files are downloaded for tokenization, lemmatization, an
 The dataset is loaded into a pandas DataFrame for easy manipulation and analysis.
 
 ### 4. Preprocessing the Data
-The features '''(user_review)''' and labels '''(status)''' are extracted from the dataset. The labels are encoded into numerical values using LabelEncoder for compatibility with the machine learning model.
+The features ```(user_review)``` and labels ```(status)``` are extracted from the dataset. The labels are encoded into numerical values using LabelEncoder for compatibility with the machine learning model.
 
 ### 5. Text Preprocessing Function
 A function is defined to preprocess the text data:
