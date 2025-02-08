@@ -15,18 +15,19 @@ import os
 
 # Download NLTK data files (only need to run once)
 nltk.download('punkt')
+nltk.download('punkt_tab')
 nltk.download('wordnet')
 nltk.download('stopwords')
-nltk.download('punkt_tab')
 
 # Load the training CSV data
 print("Loading training CSV data...")
 train_data = pd.read_csv('reviews.csv')
 print(f"Loaded {len(train_data)} training records.")
 
-# Load the testing CSV data
+# Load the testing CSV data with specified column names
 print("Loading testing CSV data...")
-test_data = pd.read_csv('test-reviews.csv')
+column_names = ['const', 'title_id', 'title_name', 'user_review', 'status', 'sub_date']
+test_data = pd.read_csv('test-reviews.csv', names=column_names, header=None)
 print(f"Loaded {len(test_data)} testing records.")
 
 # Preprocess the training data
