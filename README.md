@@ -54,6 +54,9 @@ A pipeline is created that combines TfidfVectorizer and SVC for streamlined proc
 
 1. TF-IDF Vectorization: Converts text data into numerical features, capturing the importance of words.
 2. SVM Classifier: A powerful classifier that works well with high-dimensional data.
+
+<img src="https://ch.mathworks.com/discovery/support-vector-machine/_jcr_content/mainParsys/image.adapt.full.medium.jpg/1718266259806.jpg" alt="drawing" width="200"/>
+
 3. Grid Search: Hyperparameter tuning to find the best combination of parameters for the model.
 4. Model Persistence: The trained model is saved to a file using joblib to avoid retraining in future runs.
 
