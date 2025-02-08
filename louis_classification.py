@@ -15,23 +15,33 @@ import os
 
 # Download NLTK data files (only need to run once)
 nltk.download('punkt')
-nltk.download('punkt_tab')
 nltk.download('wordnet')
 nltk.download('stopwords')
+nltk.download('punkt_tab')
 
-# Load the CSV data
-print("Loading CSV data...")
-data = pd.read_csv('reviews.csv')
-print(f"Loaded {len(data)} records.")
+# Load the training CSV data
+print("Loading training CSV data...")
+train_data = pd.read_csv('reviews.csv')
+print(f"Loaded {len(train_data)} training records.")
 
-# Preprocess the data
+# Load the testing CSV data
+print("Loading testing CSV data...")
+test_data = pd.read_csv('test-reviews.csv')
+print(f"Loaded {len(test_data)} testing records.")
+
+# Preprocess the training data
 # Assuming 'user_review' is the text of the review and 'status' is the label
-X = data['user_review']
-y = data['status']
+X_train = train_data['user_review']
+y_train = train_data['status']
+
+# Preprocess the testing data
+X_test = test_data['user_review']
+y_test = test_data['status']
 
 # Encode the labels
 label_encoder = LabelEncoder()
-y = label_encoder.fit_transform(y)
+y_train = label_encoder.fit_transform(y_train)
+y_test = label_encoder.transform(y_test)
 
 # Define a function for text preprocessing
 def preprocess_text(text):
@@ -44,14 +54,11 @@ def preprocess_text(text):
     return ' '.join(words)
 
 # Apply text preprocessing
-print("Preprocessing text data...")
-X = X.apply(preprocess_text)
+print("Preprocessing training text data...")
+X_train = X_train.apply(preprocess_text)
 
-# Split the data into training and testing sets
-print("Splitting data into training and testing sets...")
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-print(f"Training set: {len(X_train)} records")
-print(f"Testing set: {len(X_test)} records")
+print("Preprocessing testing text data...")
+X_test = X_test.apply(preprocess_text)
 
 # Create a pipeline that combines a TfidfVectorizer with an SVM classifier
 print("Creating the model pipeline...")
