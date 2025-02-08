@@ -10,9 +10,12 @@ from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 import nltk
 import re
+import joblib
+import os
 
 # Download NLTK data files (only need to run once)
 nltk.download('punkt')
+nltk.download('punkt_tab')
 nltk.download('wordnet')
 nltk.download('stopwords')
 
@@ -51,21 +54,27 @@ print(f"Training set: {len(X_train)} records")
 print(f"Testing set: {len(X_test)} records")
 
 # Create a pipeline that combines a TfidfVectorizer with an SVM classifier
-print("Creating and training the model...")
+print("Creating the model pipeline...")
 pipeline = make_pipeline(TfidfVectorizer(ngram_range=(1, 2)), SVC(kernel='linear', class_weight='balanced'))
 
 # Hyperparameter tuning using Grid Search
 param_grid = {
     'tfidfvectorizer__max_df': [0.75, 1.0],
-    'tfidfvectorizer__max_features': [None, 5000, 10000],
-    'svc__C': [0.1, 1, 10]
+    'tfidfvectorizer__max_features': [None, 5000],
+    'svc__C': [0.1, 1]
 }
 grid_search = GridSearchCV(pipeline, param_grid, cv=5, n_jobs=-1, verbose=2)
-grid_search.fit(X_train, y_train)
 
-# Train the model with the best parameters
-model = grid_search.best_estimator_
-print("Model training completed.")
+# Check if the model already exists
+if os.path.exists('sentiment_model.pkl'):
+    print("Loading the saved model...")
+    model = joblib.load('sentiment_model.pkl')
+else:
+    print("Training the model...")
+    grid_search.fit(X_train, y_train)
+    model = grid_search.best_estimator_
+    joblib.dump(model, 'sentiment_model.pkl')
+    print("Model training completed and saved.")
 
 # Predict the status of the test set
 print("Predicting the status of the test set...")
@@ -82,6 +91,9 @@ def predict_review_status(review):
     prediction = model.predict([preprocessed_review])[0]
     return label_encoder.inverse_transform([prediction])[0]
 
-# Prompt the user for a review
-new_review = input("Please enter a movie review: ")
-print(f'The review status is: {predict_review_status(new_review)}')
+# Prompt the user for a review in a loop
+while True:
+    new_review = input("Please enter a movie review (or type 'exit' to quit): ")
+    if new_review.lower() == 'exit':
+        break
+    print(f'The review status is: {predict_review_status(new_review)}')
