@@ -66,7 +66,8 @@ A function is defined to preprocess and predict the status of a new review. The 
 ## Usage
 To run the script, use the following command:
 
-'''sh
-python louis_classification.py'''
+```sh
+python louis_classification.py
+```
 
 The script will load the dataset, preprocess the data, train the model (if not already saved), and prompt the user to enter movie reviews for classification.
